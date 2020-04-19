@@ -62,6 +62,6 @@ app.get('/movie', (req, res) => {
   res.status(200).json(response);
 });
 
-const PORT = proces.env.PORT || 8000;
+const PORT = process.env.PORT || 8000;
 
 app.listen(PORT);
