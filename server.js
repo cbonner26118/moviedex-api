@@ -7,7 +7,9 @@ const MOVIES = require('./movies-data-small.json');
 
 const app = express();
 
-app.use(morgan('dev'));
+const morganSettings =
+  process.env.NODE_ENV === 'production' ? 'tiny' : 'common';
+app.use(morgan(morganSettings));
 app.use(helmet());
 app.use(cors());
 
@@ -47,11 +49,19 @@ app.get('/movie', (req, res) => {
     );
   }
 
+  app.use((error, req, res, next) => {
+    let response;
+    if (process.env.NODE_ENV === 'production') {
+      response = { error: { message: 'server error' } };
+    } else {
+      response = { error };
+    }
+    res.status(500).json(response);
+  });
+
   res.status(200).json(response);
 });
 
-const PORT = 8000;
+const PORT = proces.env.PORT || 8000;
 
-app.listen(PORT, () => {
-  console.log(`Server listening on PORT: ${PORT}`);
-});
+app.listen(PORT);
