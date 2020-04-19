@@ -3,7 +3,7 @@ const express = require('express');
 const morgan = require('morgan');
 const helmet = require('helmet');
 const cors = require('cors');
-const movies = require('./movies-data-small.json');
+const MOVIES = require('./movies-data-small.json');
 
 const app = express();
 
@@ -23,30 +23,31 @@ app.use((req, res, next) => {
 });
 
 app.get('/movie', (req, res) => {
-  const { genre, country, avg_vote } = req.query;
-  const filteredGenres = movies.filter((item) => {
-    if (genre) {
-      return item.genre.toLowerCase().includes(genre.toLowerCase());
-    }
-    return true;
-  });
+  let response = MOVIES;
 
-  const filteredCountry = filteredGenres.filter((item) => {
-    if (country) {
-      return item.country
+  if (req.query.genre) {
+    response = response.filter((movie) =>
+      movie.genre
         .toLowerCase()
-        .includes(country.toLowerCase());
-    }
-    return true;
-  });
+        .includes(req.query.genre.toLowerCase())
+    );
+  }
 
-  const filteredAvgVote = filteredCountry.filter((item) => {
-    if (avg_vote) {
-      return item.avg_vote >= avg_vote;
-    }
-    return true;
-  });
-  res.status(200).json(filteredAvgVote);
+  if (req.query.country) {
+    response = response.filter((movie) =>
+      movie.country
+        .toLowerCase()
+        .includes(req.query.country.toLowerCase())
+    );
+  }
+
+  if (req.query.avg_vote) {
+    response = response.filter(
+      (movie) => Number(movie.avg_vote) >= Number(req.query.avg_vote)
+    );
+  }
+
+  res.status(200).json(response);
 });
 
 const PORT = 8000;
